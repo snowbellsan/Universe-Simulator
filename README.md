@@ -12,7 +12,7 @@
 
 ## 🚀 Live Demo
 
-[https://your-username.github.io/universe-simulator/](https://snowbellsan.github.io/universe-simulator/)  
+[https://snowbellsan.github.io/universe-simulator/](https://snowbellsan.github.io/universe-simulator/)  
 *(Replace with your actual GitHub Pages URL after deployment)*
 
 ---
