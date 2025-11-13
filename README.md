@@ -102,8 +102,8 @@ Simplified models of real cosmology:
 ## 👨‍💻 Author
 
 **Your Name**  
-GitHub: [@your-username](https://github.com/snowbellsan)  
-Twitter: [@Jack](https://x.com/Jackpot_jack))
+GitHub: [@snowbellsan](https://github.com/snowbellsan)  
+Twitter: [@Jack](https://x.com/Jackpot_jack)
 
 ---
 
