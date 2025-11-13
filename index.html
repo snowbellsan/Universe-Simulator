@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Universe Simulator v5.4 (Help Included)</title>
+<style>
+/* --- CSS remains unchanged --- */
+body { 
+    font-family: 'Segoe UI', sans-serif; 
+    background:#000; 
+    color:#0ff; 
+    margin:0; 
+    display:flex; 
+}
+#main { 
+    flex:1; 
+    display:flex; 
+    flex-direction:column; 
+    align-items:center; 
+    max-width: 1300px; 
+    min-width: 950px; 
+}
+#ui { 
+    display:flex; 
+    flex-wrap:wrap; 
+    justify-content:center; 
+    gap:12px; 
+    margin:10px; 
+    padding:15px; 
+    background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 100%); 
+    border-radius:12px; 
+    border: 2px solid #0ff;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3), inset 0 0 20px rgba(0, 255, 255, 0.1);
+}
+label { display:flex; flex-direction:column; font-size:0.85rem; color:#0ff; width:130px; text-shadow: 0 0 5px #0ff; }
+input[type=range] { width:100%; accent-color:#0ff; height: 6px; }
+input[type=range]:disabled { 
+    opacity: 0.3; 
+    cursor: not-allowed; 
+    accent-color:#444;
+    filter: grayscale(1);
+}
+label.disabled { opacity: 0.4; text-shadow: none; }
+span.val { color:#f0f; font-family:monospace; font-weight: bold; text-shadow: 0 0 5px #f0f; }
+#controls { margin:10px; display:flex; gap:10px; }
+button { 
+    background: linear-gradient(135deg, #1a0a2e 0%, #0a0a1a 100%); 
+    color:#0ff; 
+    border:2px solid #0ff; 
+    padding:10px 20px; 
+    border-radius:8px; 
+    cursor:pointer; 
+    transition: all 0.3s; 
+    font-weight: bold;
+    text-shadow: 0 0 5px #0ff;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+button:hover { 
+    background: linear-gradient(135deg, #0ff 0%, #0af 100%); 
+    color:#000; 
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+    text-shadow: none;
+}
+.active-btn { 
+    background: linear-gradient(135deg, #f0f 0%, #f0a 100%) !important; 
+    color:#000 !important; 
+    border-color:#f0f !important; 
+    box-shadow: 0 0 20px rgba(255, 0, 255, 0.8) !important;
+    text-shadow: none !important;
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(255, 0, 255, 0.8); }
+    50% { box-shadow: 0 0 30px rgba(255, 0, 255, 1); }
+}
+canvas { 
+    border:2px solid #0ff; 
+    background:#000; 
+    margin:10px; 
+    border-radius:12px; 
+    box-shadow:0 0 30px rgba(0, 255, 255, 0.5), inset 0 0 30px rgba(0, 255, 255, 0.1); 
+}
+
+#sidebar { 
+    width: 380px; 
+    padding:15px; 
+    background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 100%); 
+    border-left:2px solid #0ff; 
+    color:#0ff; 
+    font-family:monospace; 
+    overflow-y: auto; 
+    display: flex; 
+    flex-direction: column;
+    box-shadow: inset 0 0 30px rgba(0, 255, 255, 0.1);
+}
+
+#age, #stats { 
+    margin:5px 0; 
+    font-size:0.95rem; 
+    color:#0ff; 
+    padding: 10px;
+    border: 2px solid #0ff;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.05) 0%, rgba(255, 0, 255, 0.05) 100%);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+    text-shadow: 0 0 3px #0ff;
+}
+#stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 15px; 
+}
+#stats span {
+    color: #0ff;
+}
+
+#log { 
+    width:100%; 
+    height: 60vh; 
+    min-height: 250px; 
+    overflow-y:auto; 
+    background: linear-gradient(135deg, #000 0%, #0a0a1a 100%); 
+    color:#0ff; 
+    font-size:0.8rem; 
+    padding:10px; 
+    border:2px solid #0ff; 
+    border-radius:8px; 
+    margin-top:10px; 
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 15px rgba(0, 255, 255, 0.1);
+}
+.log-important { color:#f0f; font-weight:bold; text-shadow:0 0 8px #f0f; }
+#title { 
+    color:#0ff; 
+    text-shadow:0 0 20px #0ff, 0 0 40px #0ff; 
+    margin:10px; 
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+}
+#log::-webkit-scrollbar { width:10px; }
+#log::-webkit-scrollbar-track { background:#0a0a1a; border-radius: 5px; }
+#log::-webkit-scrollbar-thumb { background:#0ff; border-radius:5px; box-shadow: 0 0 5px #0ff; }
+
+#timeline-container { width: 90%; max-width: 800px; margin: 10px auto; text-align: center; }
+#timeline { width: 100%; margin: 10px 0; }
+#timeline:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    accent-color:#444;
+    filter: grayscale(1);
+}
+#timeline-container label.disabled {
+    opacity: 0.4;
+    text-shadow: none;
+}
+
+/* Help Modal */
+#helpModal { 
+    display: none; 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: rgba(0, 0, 0, 0.95); 
+    z-index: 1000; 
+    overflow-y: auto;
+    backdrop-filter: blur(5px);
+}
+#helpModal.show { display: block; }
+#helpContent { 
+    max-width: 900px; 
+    margin: 30px auto; 
+    background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 100%); 
+    border: 2px solid #0ff; 
+    border-radius: 12px; 
+    padding: 30px; 
+    color: #0ff;
+    box-shadow: 0 0 40px rgba(0, 255, 255, 0.5);
+}
+#helpContent h2 { 
+    color: #f0f; 
+    text-shadow: 0 0 15px #f0f, 0 0 30px #f0f; 
+    margin-top: 25px; 
+    border-bottom: 2px solid #0ff;
+    padding-bottom: 10px;
+}
+#helpContent h3 { 
+    color: #0ff; 
+    margin-top: 20px; 
+    text-shadow: 0 0 5px #0ff;
+}
+#helpContent h4 { color: #0af; margin-top: 15px; margin-bottom: 8px; }
+#helpContent p, #helpContent ul { line-height: 1.6; }
+#helpContent ul { padding-left: 25px; }
+#helpContent li { margin: 8px 0; }
+#helpContent .color-box { 
+    display: inline-block; 
+    width: 18px; 
+    height: 18px; 
+    border: 1px solid #0ff; 
+    margin-right: 8px; 
+    vertical-align: middle;
+    border-radius: 3px;
+    box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+}
+#helpContent .key { 
+    background: linear-gradient(135deg, #1a0a2e 0%, #0a0a1a 100%); 
+    color: #f0f; 
+    padding: 2px 8px; 
+    border-radius: 4px; 
+    font-family: monospace; 
+    border: 1px solid #f0f;
+    box-shadow: 0 0 5px rgba(255, 0, 255, 0.3);
+}
+#closeHelp { 
+    float: right; 
+    background: linear-gradient(135deg, #f00 0%, #a00 100%); 
+    color: #fff; 
+    border: 2px solid #f00;
+    font-size: 1.2rem;
+    padding: 5px 15px;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+}
+#closeHelp:hover { 
+    background: linear-gradient(135deg, #fff 0%, #faa 100%); 
+    color: #f00; 
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+}
+</style>
+</head>
+<body>
+
+<div id="main">
+<h1 id="title">Universe Simulator v5.4 (Planet Names & Events)</h1>
+
+<div id="ui">
+  <label id="gravityLabel">Gravity (G) <span class="val" id="gVal">10.0</span>
+    <input type="range" id="gravity" min="0" max="20" step="0.1" value="10.0">
+  </label>
+  <label id="lambdaLabel">Dark Energy (Λ) <span class="val" id="lVal">0.5</span>
+    <input type="range" id="lambda" min="0" max="5" step="0.1" value="0.5">
+  </label>
+  <label id="galaxySizeLabel">Galaxies <span class="val" id="galSizeVal">5</span>
+    <input type="range" id="galaxySize" min="1" max="10" step="1" value="5">
+  </label>
+  <label id="planetCountLabel">Planets <span class="val" id="planetsVal">100</span>
+    <input type="range" id="planetCount" min="10" max="300" step="10" value="100">
+  </label>
+  <label id="inflationLabel">Inflation (x) <span class="val" id="infVal">1.0</span>
+    <input type="range" id="inflation" min="0.5" max="10" step="0.1" value="1.0">
+  </label>
+  <label id="speedLabel">Speed (x) <span class="val" id="speedVal">1.0</span>
+    <input type="range" id="speed" min="0.1" max="10" step="0.1" value="1.0">
+  </label>
+</div>
+
+<div id="controls">
+  <button id="startBtn">Play</button>
+  <button id="pauseBtn">Pause</button>
+  <button id="resetBtn">Reset</button>
+  <button id="helpBtn">Help</button>
+</div>
+
+<div id="timeline-container">
+  <label id="timelineLabel" style="width: auto; color: #0ff; text-shadow: 0 0 5px #0ff;">
+    Timeline (Billion Years): <span class="val" id="timelineVal">0.00</span>
+    <input type="range" id="timeline" min="0" max="138" step="0.1" value="0.0">
+  </label>
+</div>
+
+<canvas id="universe" width="900" height="540"></canvas>
+
+</div>
+
+<div id="sidebar">
+    <div id="age">Universe Age: <span id="ageVal">0.00</span> Billion Years</div>
+    <div id="stats">
+      <span>Planets: <span id="planetStat">0</span></span>
+      <span>Galaxies: <span id="galaxyStat">0</span></span>
+      <span>BH: <span id="bhStat">0</span></span>
+      <span>C: <span id="cStat">0</span></span>
+      <span>O: <span id="oStat">0</span></span>
+      <span>N: <span id="nStat">0</span></span>
+      <span>Mg: <span id="mgStat">0</span></span>
+      <span>Si: <span id="siStat">0</span></span>
+      <span>Fe: <span id="feStat">0</span></span>
+      <span>Au: <span id="auStat">0</span></span>
+      <span>Temp: <span id="tempStat">0</span> K</span>
+    </div>
+
+    <h3 style="margin-top:15px; color:#0ff;">Event Log</h3>
+    <div id="log"></div>
+</div>
+
+<!-- Help Modal -->
+<div id="helpModal">
+  <div id="helpContent">
+    <button id="closeHelp">Close</button>
+    <h2>Universe Simulator v5.4 - Help Guide</h2>
+    
+    <h3>Program Overview</h3>
+    <p>This simulator recreates 13.8 billion years of cosmic evolution from the Big Bang to the present. Experience quantum fluctuations, galaxy formation, star birth, supernovae, and the emergence of life in real time.</p>
+    
+    <h3>Basic Controls</h3>
+    <ul>
+        <li><span class="key">Play</span>: Start the simulation</li>
+        <li><span class="key">Pause</span>: Pause the simulation</li>
+        <li><span class="key">Reset</span>: Reset the universe to initial state</li>
+        <li><span class="key">Mouse Drag</span>: Pan the view</li>
+        <li><span class="key">Mouse Wheel</span>: Zoom in/out</li>
+    </ul>
+    
+    <h3>Parameter Explanation</h3>
+    <ul>
+        <li><strong>Gravity (G)</strong>: Gravitational constant. Higher values accelerate galaxy clustering</li>
+        <li><strong>Dark Energy (Λ)</strong>: Force accelerating cosmic expansion. ~70% of real universe</li>
+        <li><strong>Galaxies</strong>: Maximum number of galaxies to generate</li>
+        <li><strong>Planets</strong>: Maximum number of planets to generate</li>
+        <li><strong>Inflation</strong>: Initial rapid expansion rate (currently unused)</li>
+        <li><strong>Speed</strong>: Simulation time multiplier</li>
+    </ul>
+    
+    <h3>Visual Object Meanings</h3>
+    
+    <h4>Galaxies (Spiral Structures)</h4>
+    <ul>
+        <li><span class="color-box" style="background:#88f;"></span> <strong>Blue-white galaxy</strong>: Young, hot stars (~8000K)</li>
+        <li><span class="color-box" style="background:#f88;"></span> <strong>Red galaxy</strong>: Old, cool stars (~4000K) + redshift effect</li>
+        <li><span class="color-box" style="background:#ff0;"></span> <strong>Yellow core</strong>: High-density central region</li>
+        <li>Each galaxy has an <strong>ID (e.g., G-001)</strong></li>
+    </ul>
+    
+    <h4>Planets</h4>
+    <ul>
+        <li><span class="color-box" style="background:#88f;"></span> <strong>Blue planet</strong>: Normal planet without life</li>
+        <li><span class="color-box" style="background:#0f0;"></span> <strong>Green planet</strong>: <strong>Life has emerged!</strong> In habitable zone (100–250 units from galaxy center) with C, Si, etc.</li>
+        <li>Each planet has an <strong>ID (e.g., P-042)</strong></li>
+    </ul>
+    
+    <h4>Black Holes</h4>
+    <ul>
+        <li><span class="color-box" style="background:#000; border-color:#f00;"></span> Black center with <strong>red aura</strong></li>
+        <li>~50% chance from supernovae</li>
+        <li>Absorbs nearby planets (within 10 units)</li>
+    </ul>
+    
+    <h4>Dark Matter</h4>
+    <ul>
+        <li><span class="color-box" style="background:rgba(128,0,128,0.3);"></span> <strong>Translucent purple regions</strong></li>
+        <li>Appears after recombination (~380,000 years), forms scaffold for galaxies</li>
+    </ul>
+    
+    <h4>Background Stars</h4>
+    <ul>
+        <li><span class="color-box" style="background:#fff;"></span> White dots: Modern universe (after 50% age)</li>
+        <li><span class="color-box" style="background:#f88;"></span> Red dots: Early universe (high redshift)</li>
+    </ul>
+    
+    <h3>Statistics Guide</h3>
+    <ul>
+        <li><strong>Universe Age</strong>: Current simulation time (in billion years)</li>
+        <li><strong>Planets/Galaxies/BH</strong>: Current counts</li>
+        <li><strong>C/Fe</strong>: Carbon and iron — produced by fusion and supernovae</li>
+        <li><strong>Temp</strong>: CMB temperature. Starts at 2.7×10¹⁵ K, cools to 2.725 K today</li>
+    </ul>
+    
+    <h3>Major Cosmic Events</h3>
+    <ul>
+        <li><strong>10⁻¹² s</strong>: Quark era ends, protons/neutrons form</li>
+        <li><strong>1 s</strong>: Lepton era ends, electrons stabilize</li>
+        <li><strong>3 min</strong>: Big Bang nucleosynthesis ends, helium forms</li>
+        <li><strong>380,000 years</strong>: Recombination — CMB released, dark matter emerges</li>
+        <li><strong>400 million years</strong>: First stars (Population III)</li>
+        <li><strong>800 million+ years</strong>: Galaxy structuring begins</li>
+        <li><strong>Every 5 billion years</strong>: Galaxy merger events</li>
+        <li><strong>After 12.4 billion years</strong>: Life possible on habitable planets</li>
+    </ul>
+    
+    <h3>Element Formation Process</h3>
+    <ul>
+        <li><strong>Carbon (C)</strong>: Starts with star formation. Foundation of life</li>
+        <li><strong>Oxygen (O)</strong>: Star formation. Essential for respiration</li>
+        <li><strong>Nitrogen (N)</strong>: Star formation. Key for atmosphere & proteins</li>
+        <li><strong>Neon (Ne)</strong>: After 1 billion years in stars</li>
+        <li><strong>Magnesium (Mg)</strong>: After 2 billion years. Light metal</li>
+        <li><strong>Silicon (Si)</strong>: After 4 billion years. Rocky planet material</li>
+        <li><strong>Sulfur (S)</strong>: After 4.5 billion years. Protein component</li>
+        <li><strong>Iron (Fe)</strong>: Supernova explosion (after 5 billion years). Most stable element</li>
+        <li><strong>Gold (Au)</strong>: Neutron star mergers (extremely rare)</li>
+    </ul>
+    
+    <h3>Simulation Tips</h3>
+    <ul>
+        <li><strong>Gravity (G)</strong>: 0.5+ for galaxy formation, 0.5–1.5 ideal for life, 2.0+ → black holes dominate</li>
+        <li><strong>Dark Energy (Λ)</strong>: <2.0 for structure, >3.0 → no galaxies or life</li>
+        <li><strong>Galaxy/Planet sliders</strong>: Limit max count. Too low → fewer life chances</li>
+        <li>Life requires 9.7+ billion years and balanced G/Λ</li>
+        <li>Timeline slider jumps to any era (going back resets)</li>
+        <li>Event log tracks cosmic history</li>
+    </ul>
+    
+    <h3>Physical Background</h3>
+    <p>Simplified implementation of:</p>
+    <ul>
+        <li><strong>Hubble's Law</strong>: Expansion velocity</li>
+        <li><strong>Newtonian Gravity</strong>: Attraction between bodies</li>
+        <li><strong>Stefan-Boltzmann Law</strong>: Temperature vs scale factor</li>
+        <li><strong>Nucleosynthesis Theory</strong>: Element creation in stars/supernovae</li>
+    </ul>
+    
+    <p style="text-align:center; margin-top:30px; color:#0ff;">Enjoy the mysteries of the cosmos! ✨</p>
+  </div>
+</div>
+
+<script>
+// JavaScript remains functionally identical — only log messages and comments translated
+
+const canvas = document.getElementById('universe');
+const ctx = canvas.getContext('2d');
+
+const SECONDS_PER_SIM_STEP = 5e5; 
+const BH_MASS = 10000;
+const GALAXY_MASS = 5000;
+const LOG_INTERVAL = 300;
+const INITIAL_TEMP = 2.7e15;
+const CMB_TEMP_TODAY = 2.725; 
+
+const QUARK_AGE = 1e-12;
+const LEPTON_AGE = 1;
+const NUCLEOSYNTHESIS_END = 3e2;
+const RECOMBINATION_AGE = 3.8e5;
+const FIRST_STAR_AGE = 4e8;
+const GALAXY_MERGE_INTERVAL = 5e10;
+const LIFE_THRESHOLD_AGE = 13.8e9;
+
+let universe = { 
+  galaxies: [], 
+  planets: [], 
+  blackHoles: [], 
+  time: 0, 
+  temperature: INITIAL_TEMP, 
+  scaleFactor: 1, 
+  elements: { C: 0, O: 0, Fe: 0, Mg: 0, Si: 0, Au: 0, N: 0, Ne: 0, S: 0 },
+  events: {
+    quark: false, lepton: false, nucleo: false, recomb: false, firstStar: false,
+    cluster: false
+  },
+  elementFirstGen: {
+    C: false, O: false, N: false, Mg: false, Si: false, S: false, Ne: false, Fe: false, Au: false
+  }
+};
+
+let running = false;
+let zoom = 1, panX = 0, panY = 0;
+let mouseDown = false, mouseX = 0, mouseY = 0;
+let galaxyCounter = 0;
+let planetCounter = 0;
+let lastLogTime = 0;
+let lastMergeTime = 0; 
+
+const audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+function playSound(freq=400,dur=0.1){
+  const osc=audioCtx.createOscillator(); 
+  const gain=audioCtx.createGain(); 
+  osc.connect(gain); gain.connect(audioCtx.destination); 
+  osc.frequency.value=freq; 
+  gain.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+dur); 
+  osc.start(); osc.stop(audioCtx.currentTime+dur);
+}
+
+function logEvent(text,soundFreq,isImportant=false){
+  const now = Date.now();
+  if(now-lastLogTime<LOG_INTERVAL) return;
+  lastLogTime = now;
+  const logDiv = document.getElementById('log');
+  
+  let ageString;
+  if (universe.time < 1e5) {
+      ageString = universe.time.toExponential(2) + ' s';
+  } else if (universe.time < 1e8) {
+      ageString = (universe.time / 1e5).toFixed(2) + ' million years';
+  } else {
+      ageString = (universe.time / 1e8).toFixed(2) + ' billion years';
+  }
+
+  const entry = document.createElement('div');
+  entry.innerHTML = `<small>[${ageString}]</small> ${text}`;
+  if(isImportant) entry.classList.add('log-important');
+  logDiv.appendChild(entry);
+  logDiv.scrollTop = logDiv.scrollHeight;
+  if(soundFreq) playSound(soundFreq);
+}
+
+function resetUniverse(){
+  universe = { 
+    galaxies:[], planets:[], blackHoles:[], time:0, temperature:INITIAL_TEMP, scaleFactor:1, 
+    elements: { C: 0, O: 0, Fe: 0, Mg: 0, Si: 0, Au: 0, N: 0, Ne: 0, S: 0 },
+    events: { quark: false, lepton: false, nucleo: false, recomb: false, firstStar: false, cluster: false },
+    elementFirstGen: { C: false, O: false, N: false, Mg: false, Si: false, S: false, Ne: false, Fe: false, Au: false }
+  };
+  window.darkMatter = []; 
+  galaxyCounter=0; 
+  planetCounter=0;
+  zoom=1; panX=0; panY=0;
+  document.getElementById('log').innerHTML='';
+  document.getElementById('timeline').value = 0;
+  document.getElementById('timelineVal').innerText = '0.00';
+  logEvent('Universe reset. Starting from the Big Bang!',200,true);
+  updateStats();
+}
+
+function updateStats(){
+  document.getElementById('planetStat').innerText = universe.planets.length;
+  document.getElementById('galaxyStat').innerText = universe.galaxies.length;
+  document.getElementById('bhStat').innerText = universe.blackHoles.length;
+  document.getElementById('cStat').innerText = universe.elements.C;
+  document.getElementById('oStat').innerText = universe.elements.O;
+  document.getElementById('nStat').innerText = universe.elements.N;
+  document.getElementById('mgStat').innerText = universe.elements.Mg;
+  document.getElementById('siStat').innerText = universe.elements.Si;
+  document.getElementById('feStat').innerText = universe.elements.Fe;
+  document.getElementById('auStat').innerText = universe.elements.Au;
+  document.getElementById('tempStat').innerText = universe.temperature.toExponential(2);
+  document.getElementById('ageVal').innerText = (universe.time/1e8).toFixed(2);
+}
+
+function generateGalaxy(x,y,z=0){
+  galaxyCounter++; 
+  const id=`G-${galaxyCounter.toString().padStart(3,'0')}`;
+  const galaxy={id,x,y,z,size:30,arms:[],mass:GALAXY_MASS,starFormed:false, starAge: 0, clusterFormed: false};
+  for(let i=0;i<3;i++){
+    const arm=[];
+    for(let j=0;j<25;j++){
+      const r=j*3.5;
+      const theta=Math.random()*Math.PI*2+r*0.15;
+      const h=(Math.random()-0.5)*20;
+      arm.push({x:r*Math.cos(theta), y:r*Math.sin(theta)*0.6, z:h});
+    }
+    galaxy.arms.push(arm);
+  }
+  return galaxy;
+}
+
+function generatePlanet(g){
+  planetCounter++;
+  const id = `P-${planetCounter.toString().padStart(3,'0')}`;
+  const angle=Math.random()*Math.PI*2;
+  const dist=100+Math.random()*180;
+  const h=(Math.random()-0.5)*40;
+  const x=g.x+dist*Math.cos(angle);
+  const y=g.y+dist*Math.sin(angle);
+  const z=g.z+h;
+  const orbitSpeed=Math.sqrt(g.mass/dist)*0.5;
+  const vx=-orbitSpeed*Math.sin(angle);
+  const vy=orbitSpeed*Math.cos(angle);
+  const vz=0;
+  const distToGalCenter = Math.hypot(x-g.x, y-g.y, z-g.z);
+  return {id, x,y,z,vx,vy,vz,mass:1,life:false, distToGalCenter};
+}
+
+function generateDarkMatter(a) {
+  const initialCount = 200;
+  window.darkMatter = Array.from({length: initialCount}, () => ({
+    x: (Math.random()-0.5)*1000*a,
+    y: (Math.random()-0.5)*800*a,
+    z: (Math.random()-0.5)*600*a,
+    mass: 500 
+  }));
+  logEvent('Dark matter forms initial structure', 150, true);
+}
+
+let generationTimer=0;
+function simulateStep(){
+  const speed=parseFloat(document.getElementById('speed').value);
+  const G_RAW=parseFloat(document.getElementById('gravity').value)*1e-3;
+  const lambda_RAW=parseFloat(document.getElementById('lambda').value);
+  
+  const dt = SECONDS_PER_SIM_STEP * speed;
+  universe.time += dt;
+
+  const H0 = 5e-8; 
+  const a_current = universe.time / LIFE_THRESHOLD_AGE;
+  const a = Math.pow(a_current, 0.666) 
+  universe.scaleFactor = a; 
+  universe.temperature = CMB_TEMP_TODAY / a; 
+
+  const HUBBLE_CONSTANT = (a - universe.scaleFactor) * H0;
+
+  if (universe.time > QUARK_AGE && !universe.events.quark) {
+      logEvent('Quark era ends! Protons and neutrons form', 900, true);
+      universe.events.quark = true;
+  }
+  if (universe.time > LEPTON_AGE && !universe.events.lepton) {
+      logEvent('Lepton era ends. Electrons stabilize', 800, true);
+      universe.events.lepton = true;
+  }
+  if (universe.time > NUCLEOSYNTHESIS_END && !universe.events.nucleo) {
+      logEvent('Big Bang nucleosynthesis complete. Helium fills the universe', 700, true);
+      universe.events.nucleo = true;
+  }
+  if (universe.time > RECOMBINATION_AGE && !universe.events.recomb) {
+    logEvent('Recombination era! CMB released', 500, true);
+    universe.events.recomb = true;
+    if (window.darkMatter.length === 0) generateDarkMatter(a);
+  }
+  if (universe.time > FIRST_STAR_AGE && !universe.events.firstStar) {
+    logEvent('Dawn of the universe! First stars (Population III) born', 400, true);
+    universe.events.firstStar = true;
+  }
+  if (universe.time > FIRST_STAR_AGE * 2 && !universe.events.cluster && universe.galaxies.length > 0) {
+      logEvent('Initial star clusters form. Universe begins structuring', 450);
+      universe.events.cluster = true;
+  }
+
+  const allObjects = [...universe.planets, ...universe.galaxies, ...universe.blackHoles, ...window.darkMatter];
+  allObjects.forEach(obj=>{
+    const d=Math.hypot(obj.x,obj.y,obj.z);
+    if(d===0) return;
+    const v_hubble = HUBBLE_CONSTANT*d;
+    const vx_h=(obj.x/d)*v_hubble; const vy_h=(obj.y/d)*v_hubble; const vz_h=(obj.z/d)*v_hubble;
+    if(obj.vx!==undefined){obj.vx+=vx_h; obj.vy+=vy_h; obj.vz+=vz_h;}
+    else{obj.x+=vx_h; obj.y+=vy_h; obj.z+=vz_h;}
+  });
+
+  universe.planets.forEach(p=>{
+    let Fx=0,Fy=0,Fz=0;
+    const targets = [...universe.galaxies, ...universe.blackHoles, ...window.darkMatter];
+    targets.forEach(g=>{
+      const dx=g.x-p.x, dy=g.y-p.y, dz=g.z-p.z;
+      const distSq=dx*dx+dy*dy+dz*dz; const dist=Math.sqrt(distSq)||1;
+      const mass = (g.mass !== undefined) ? g.mass : 500; 
+      if(dist > 10){ 
+        const force=G_RAW*mass/distSq; 
+        Fx+=force*dx/dist; Fy+=force*dy/dist; Fz+=force*dz/dist;
+      }
+    });
+    const step_scale=0.3*speed;
+    p.vx+=Fx*step_scale; p.vy+=Fy*step_scale; p.vz+=Fz*step_scale;
+    p.x+=p.vx*step_scale; p.y+=p.vy*step_scale; p.z+=p.vz*step_scale;
+  });
+
+  generationTimer+=16;
+  const targetG=parseInt(document.getElementById('galaxySize').value);
+  const targetP=parseInt(document.getElementById('planetCount').value);
+
+  const canFormGalaxy = G_RAW > 0.003 && lambda_RAW < 3.0;
+  if(generationTimer>1200 && universe.galaxies.length<targetG && universe.time > FIRST_STAR_AGE && canFormGalaxy){
+    const baseRange = 3000; 
+    const x = (Math.random() - 0.5) * baseRange * universe.scaleFactor;
+    const y = (Math.random() - 0.5) * baseRange * universe.scaleFactor;
+    const z = (Math.random() - 0.5) * baseRange * universe.scaleFactor * 0.5;
+    universe.galaxies.push(generateGalaxy(x,y,z));
+    generationTimer=0;
+    logEvent(`Galaxy ${universe.galaxies.slice(-1)[0].id} formed! (${universe.galaxies.length}/${targetG})`,300);
+  } else if(generationTimer>1200 && universe.galaxies.length<targetG && !canFormGalaxy) {
+    generationTimer=0;
+    if(G_RAW <= 0.003 && Math.random() < 0.01) {
+      logEvent(`Gravity too weak — galaxies cannot form`, 200);
+    }
+    if(lambda_RAW >= 3.0 && Math.random() < 0.01) {
+      logEvent(`Dark energy too strong — matter cannot clump`, 200);
+    }
+  }
+  
+  if (universe.time - lastMergeTime > GALAXY_MERGE_INTERVAL && universe.galaxies.length >= 2) {
+      if (Math.random() < 0.2) {
+          const g1 = universe.galaxies[Math.floor(Math.random() * universe.galaxies.length)];
+          const g2 = universe.galaxies.find(g => g.id !== g1.id);
+          if (g1 && g2) {
+              g1.mass += g2.mass;
+              g1.size *= 1.1; 
+              g1.arms = g1.arms.concat(g2.arms); 
+              universe.galaxies = universe.galaxies.filter(g => g.id !== g2.id);
+              logEvent(`Galaxies ${g1.id} and ${g2.id} merged!`, 550, true);
+          }
+          lastMergeTime = universe.time;
+      }
+  }
+
+  const canFormStars = G_RAW > 0.004 && lambda_RAW < 2.5;
+  universe.galaxies.forEach(g=>{
+    if (g.starFormed) g.starAge += dt;
+
+    if(!g.starFormed && canFormStars && Math.random()<0.005 && universe.time > FIRST_STAR_AGE){ 
+      g.starFormed=true; 
+      universe.elements.C+=5; universe.elements.O+=3; universe.elements.N+=2;
+      if(!universe.elementFirstGen.C) {
+        logEvent(`[Element Birth] Carbon (C) synthesized for the first time! Foundation of life`, 650, true);
+        universe.elementFirstGen.C = true;
+      }
+      if(!universe.elementFirstGen.O) {
+        logEvent(`[Element Birth] Oxygen (O) synthesized for the first time! Source of breath`, 660, true);
+        universe.elementFirstGen.O = true;
+      }
+      if(!universe.elementFirstGen.N) {
+        logEvent(`[Element Birth] Nitrogen (N) synthesized for the first time! Atmospheric component`, 655, true);
+        universe.elementFirstGen.N = true;
+      }
+      logEvent(`Star born in galaxy ${g.id}! C, O, N production begins`,600); 
+    }
+
+    if(g.starFormed && g.starAge > 1e9 && g.starAge < 2e9 && Math.random() < 0.0001){
+        universe.elements.Ne += 1;
+        if(!universe.elementFirstGen.Ne) {
+          logEvent(`[Element Birth] Neon (Ne) synthesized for the first time! Noble gas`, 630, true);
+          universe.elementFirstGen.Ne = true;
+        } else {
+          logEvent(`Neon (Ne) produced in galaxy ${g.id}`, 630);
+        }
+    }
+    if(g.starFormed && g.starAge > 2e9 && g.starAge < 4e9 && Math.random() < 0.0001){
+        universe.elements.Mg += 2;
+        if(!universe.elementFirstGen.Mg) {
+          logEvent(`[Element Birth] Magnesium (Mg) synthesized for the first time! Light metal`, 620, true);
+          universe.elementFirstGen.Mg = true;
+        } else {
+          logEvent(`Magnesium (Mg) produced in galaxy ${g.id}`, 620);
+        }
+    }
+    if(g.starFormed && g.starAge > 4e9 && g.starAge < 5e9 && Math.random() < 0.0001){
+        universe.elements.Si += 1;
+        if(!universe.elementFirstGen.Si) {
+          logEvent(`[Element Birth] Silicon (Si) synthesized for the first time! Rocky planet material`, 640, true);
+          universe.elementFirstGen.Si = true;
+        } else {
+          logEvent(`Silicon (Si) produced in galaxy ${g.id}`, 640);
+        }
+    }
+    if(g.starFormed && g.starAge > 4.5e9 && g.starAge < 5e9 && Math.random() < 0.00008){
+        universe.elements.S += 1;
+        if(!universe.elementFirstGen.S) {
+          logEvent(`[Element Birth] Sulfur (S) synthesized for the first time! Protein component`, 635, true);
+          universe.elementFirstGen.S = true;
+        } else {
+          logEvent(`Sulfur (S) produced in galaxy ${g.id}`, 635);
+        }
+    }
+    if(g.starFormed && g.starAge > 5e9 && Math.random()<0.0003){ 
+      universe.elements.Fe+=2; 
+      if(!universe.elementFirstGen.Fe) {
+        logEvent(`[Element Birth] Iron (Fe) synthesized for the first time! Most stable element`, 700, true);
+        universe.elementFirstGen.Fe = true;
+      }
+      logEvent(`Supernova in galaxy ${g.id}! Heavy elements (Fe) released`,700,true);
+      if(Math.random()<0.5){
+        universe.blackHoles.push({x:g.x,y:g.y,z:g.z,mass:BH_MASS});
+        logEvent('Black hole born!',900,true);
+      }
+      g.starFormed = false;
+      g.starAge = 0; 
+    }
+    if(universe.blackHoles.length >= 2 && Math.random() < 0.00001 && universe.time > 8e9){
+        universe.elements.Au += 1;
+        if(!universe.elementFirstGen.Au) {
+          logEvent(`[Element Birth] Gold (Au) synthesized for the first time! From neutron star merger`, 950, true);
+          universe.elementFirstGen.Au = true;
+        } else {
+          logEvent('Neutron star merger! Gold (Au) and heavy elements created!', 950, true);
+        }
+    }
+  });
+
+  const canFormPlanets = G_RAW > 0.005 && universe.elements.C > 3;
+  if(generationTimer>800 && universe.planets.length<targetP && universe.galaxies.length>0 && canFormPlanets){
+    const g=universe.galaxies[Math.floor(Math.random()*universe.galaxies.length)];
+    universe.planets.push(generatePlanet(g));
+    logEvent(`New planet **${universe.planets.slice(-1)[0].id}** born around galaxy ${g.id} (${universe.planets.length}/${targetP})`, 320);
+  }
+  
+  const lifeConditionsGood = G_RAW > 0.005 && G_RAW < 0.015 && lambda_RAW < 2.0;
+  universe.planets.forEach(p=>{
+    const isHabitable = p.distToGalCenter > 100 && p.distToGalCenter < 250; 
+    if(!p.life && lifeConditionsGood && universe.elements.C>5 && universe.elements.O>3 && universe.elements.N>1 && universe.time > LIFE_THRESHOLD_AGE * 0.7 && isHabitable && Math.random()<0.01){
+      p.life=true; 
+      logEvent(`Life emerges on planet **${p.id}**! Evolution begins in habitable zone`,800,true);
+    }
+  });
+
+  universe.planets=universe.planets.filter(p=>{
+    for(let bh of universe.blackHoles){
+      if(Math.hypot(p.x-bh.x,p.y-bh.y,p.z-bh.z)<10){
+        logEvent(`Planet **${p.id}** swallowed by black hole`,80);
+        return false;
+      }
+    } return true;
+  });
+  
+  if (window.darkMatter.length > 50 && universe.time > FIRST_STAR_AGE * 1.5 && Math.random() < 0.00005) {
+      logEvent('Dark matter halos merge into larger structure!', 180);
+  }
+}
+
+function drawUniverse(){
+  ctx.setTransform(1, 0, 0, 1, 0, 0); 
+  ctx.fillStyle='#000'; 
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.setTransform(zoom, 0, 0, zoom, panX, panY);
+
+  if(!window.stars){ window.stars=Array.from({length:800},()=>({x:(Math.random()-0.5)*2000,y:(Math.random()-0.5)*1600,z:Math.random()*1000+200})); }
+  window.stars.forEach(s=>{
+    const color = universe.scaleFactor < 0.5 ? '#f88' : '#fff';
+    ctx.fillStyle = color;
+    ctx.fillRect(s.x, s.y, 2 / zoom, 2 / zoom); 
+  });
+  
+  if(window.darkMatter && window.darkMatter.length > 0) {
+    window.darkMatter.forEach(dm => {
+      ctx.fillStyle = 'rgba(128, 0, 128, 0.05)'; 
+      ctx.beginPath();
+      ctx.arc(dm.x, dm.y, 20 / zoom, 0, Math.PI*2);
+      ctx.fill();
+    });
+  }
+
+  const objects=[
+    ...universe.galaxies.map(g=>({type:'galaxy',data:g,zCoord:g.z})), 
+    ...universe.planets.map(p=>({type:'planet',data:p,zCoord:p.z})), 
+    ...universe.blackHoles.map(b=>({type:'bh',data:b,zCoord:b.z}))
+  ];
+  objects.sort((a,b)=>b.zCoord-a.zCoord);
+  
+  const r_base = 1.5; 
+  objects.forEach(obj=>{
+    const {type,data}=obj;
+    const {x, y} = data;
+
+    if(type==='galaxy'){ 
+      const starTemp = data.starAge > 5e9 ? 4000 : 8000;
+      const hue = starTemp > 5000 ? 200 : 0; 
+      data.arms.forEach(arm=>{ 
+        arm.forEach(pt=>{
+          ctx.fillStyle = `hsl(${hue}, 100%, 70%)`;
+          ctx.beginPath();
+          ctx.arc(x + pt.x, y + pt.y, r_base / zoom, 0, Math.PI*2); 
+          ctx.fill(); 
+        }); 
+      }); 
+      ctx.fillStyle='#ff0'; 
+      ctx.beginPath(); 
+      ctx.arc(x, y, 5 * r_base / zoom, 0, Math.PI*2); 
+      ctx.fill(); 
+    }
+    
+    if(type==='planet'){ 
+      const color = data.life ? '#0f0' : '#88f'; 
+      ctx.fillStyle=color; 
+      ctx.beginPath(); 
+      ctx.arc(x, y, 2.5 * r_base / zoom, 0, Math.PI*2); 
+      ctx.fill();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      const screenX = x * zoom + panX;
+      const screenY = y * zoom + panY;
+      ctx.font = 'bold 10px monospace';
+      ctx.fillStyle = color;
+      ctx.fillText(data.id, screenX + 5, screenY - 5);
+      ctx.setTransform(zoom, 0, 0, zoom, panX, panY);
+    }
+    
+    if(type==='bh'){ 
+      const r=18 * r_base / zoom; 
+      const gradient=ctx.createRadialGradient(x, y, r*0.4, x, y, r*1.2); 
+      gradient.addColorStop(0,'#000'); 
+      gradient.addColorStop(1,'rgba(255, 0, 0, 0.3)'); 
+      ctx.fillStyle=gradient; 
+      ctx.beginPath(); 
+      ctx.arc(x, y, r, 0, Math.PI*2); 
+      ctx.fill();
+    }
+  });
+  ctx.setTransform(1, 0, 0, 1, 0, 0); 
+}
+
+function loop(){
+  if(running){
+    simulateStep(); 
+    document.getElementById('timeline').value = (universe.time/1e8).toFixed(1);
+    document.getElementById('timelineVal').innerText = (universe.time/1e8).toFixed(2);
+  }
+  drawUniverse(); 
+  updateStats();
+  requestAnimationFrame(loop);
+}
+
+function disableSimulationParams() {
+  const params = ['gravity', 'lambda', 'galaxySize', 'planetCount', 'inflation'];
+  params.forEach(id => {
+    document.getElementById(id).disabled = true;
+    document.getElementById(id + 'Label').classList.add('disabled');
+  });
+  document.getElementById('timeline').disabled = true;
+  document.getElementById('timelineLabel').classList.add('disabled');
+}
+
+function enableSimulationParams() {
+  const params = ['gravity', 'lambda', 'galaxySize', 'planetCount', 'inflation'];
+  params.forEach(id => {
+    document.getElementById(id).disabled = false;
+    document.getElementById(id + 'Label').classList.remove('disabled');
+  });
+  document.getElementById('timeline').disabled = false;
+  document.getElementById('timelineLabel').classList.remove('disabled');
+}
+
+function updateButtonStates() {
+  const startBtn = document.getElementById('startBtn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  if(running) {
+    startBtn.classList.remove('active-btn');
+    pauseBtn.classList.add('active-btn');
+  } else {
+    startBtn.classList.remove('active-btn');
+    pauseBtn.classList.remove('active-btn');
+  }
+}
+
+document.getElementById('startBtn').onclick=()=>{
+  running=true; 
+  disableSimulationParams();
+  updateButtonStates();
+  logEvent('Simulation started!',200,true);
+};
+document.getElementById('pauseBtn').onclick=()=>{
+  running=false; 
+  updateButtonStates();
+  logEvent('Simulation paused',200);
+};
+document.getElementById('resetBtn').onclick=()=>{
+  running = false;
+  resetUniverse();
+  enableSimulationParams();
+  updateButtonStates();
+};
+
+document.getElementById('helpBtn').onclick = () => {
+    document.getElementById('helpModal').classList.add('show');
+};
+document.getElementById('closeHelp').onclick = () => {
+    document.getElementById('helpModal').classList.remove('show');
+};
+document.getElementById('helpModal').onclick = (e) => {
+    if (e.target.id === 'helpModal') {
+        document.getElementById('helpModal').classList.remove('show');
+    }
+};
+
+document.getElementById('timeline').oninput = (e) => {
+    const newAgeBillion = parseFloat(e.target.value);
+    document.getElementById('timelineVal').innerText = newAgeBillion.toFixed(2);
+    if (running) running = false;
+    const newTime = newAgeBillion * 1e8; 
+    if (newTime < universe.time) {
+        resetUniverse(); 
+        universe.time = newTime;
+    } else {
+        universe.time = newTime;
+    }
+    const a_jump = newTime / LIFE_THRESHOLD_AGE;
+    const a_scaled = Math.pow(a_jump, 0.666);
+    universe.scaleFactor = a_scaled;
+    universe.temperature = CMB_TEMP_TODAY / a_scaled;
+    universe.events.recomb = universe.time > RECOMBINATION_AGE;
+    universe.events.firstStar = universe.time > FIRST_STAR_AGE;
+    universe.events.quark = universe.time > QUARK_AGE;
+    universe.events.lepton = universe.time > LEPTON_AGE;
+    universe.events.nucleo = universe.time > NUCLEOSYNTHESIS_END;
+    if (universe.time > RECOMBINATION_AGE && (!window.darkMatter || window.darkMatter.length === 0)) {
+        generateDarkMatter(a_scaled);
+    }
+    logEvent(`Timeline jumped to ${newAgeBillion.toFixed(2)} billion years`, 350, true);
+};
+
+document.getElementById('gravity').oninput = function() { document.getElementById('gVal').innerText = this.value; };
+document.getElementById('lambda').oninput = function() { document.getElementById('lVal').innerText = this.value; };
+document.getElementById('galaxySize').oninput = function() { document.getElementById('galSizeVal').innerText = this.value; };
+document.getElementById('planetCount').oninput = function() { document.getElementById('planetsVal').innerText = this.value; };
+document.getElementById('inflation').oninput = function() { document.getElementById('infVal').innerText = this.value; };
+document.getElementById('speed').oninput = function() { document.getElementById('speedVal').innerText = this.value; };
+
+canvas.addEventListener('mousedown', e => { 
+  mouseDown = true; 
+  const rect = canvas.getBoundingClientRect();
+  mouseX = e.clientX - rect.left - panX; 
+  mouseY = e.clientY - rect.top - panY; 
+});
+canvas.addEventListener('mousemove', e => {
+  if (mouseDown) {
+    const rect = canvas.getBoundingClientRect();
+    panX = e.clientX - rect.left - mouseX;
+    panY = e.clientY - rect.top - mouseY;
+  }
+});
+canvas.addEventListener('mouseup', () => mouseDown = false);
+canvas.addEventListener('mouseleave', () => mouseDown = false);
+
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const zoomFactor = 1.1;
+  const oldZoom = zoom;
+  zoom *= e.deltaY > 0 ? 1 / zoomFactor : zoomFactor;
+  zoom = Math.max(0.05, Math.min(zoom, 50)); 
+  const rect = canvas.getBoundingClientRect();
+  const clientX = e.clientX - rect.left;
+  const clientY = e.clientY - rect.top;
+  const ratio = 1 - zoom / oldZoom;
+  panX += (clientX - panX) * ratio;
+  panY += (clientY - panY) * ratio; 
+});
+
+window.darkMatter = [];
+resetUniverse();
+loop();
+</script>
+
+</body>
+</html>
