@@ -1,7 +1,7 @@
 # 🌌 Universe Simulator v5.4  
 **From Big Bang to Life – in your browser**
 
-[![Demo](https://img.shields.io/badge/Live_Demo-Click_here-00ffff?style=for-the-badge)](https://snowbellsan.github.io/universe-simulator/)  
+[![Demo](https://img.shields.io/badge/Live_Demo-Click_here-00ffff?style=for-the-badge)](https://snowbellsan.github.io/Universe-Simulator/)  
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=css3&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)
@@ -12,7 +12,7 @@
 
 ## 🚀 Live Demo
 
-[https://snowbellsan.github.io/universe-simulator/](https://snowbellsan.github.io/universe-simulator/)  
+[https://snowbellsan.github.io/Universe-Simulator/](https://snowbellsan.github.io/Universe-Simulator/)  
 *(Replace with your actual GitHub Pages URL after deployment)*
 
 ---
@@ -109,7 +109,7 @@ Twitter: [@Jack](https://x.com/Jackpot_jack)
 
 ## ⭐ Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=snowbellsan/universe-simulator&type=Date)](https://star-history.com/#snowbellsan/universe-simulator&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=snowbellsan/Universe-Simulator&type=Date)](https://star-history.com/#snowbellsan/Universe-Simulator&Date)
 
 ---
 
